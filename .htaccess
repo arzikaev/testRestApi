@@ -5,7 +5,7 @@ RewriteEngine on
 DirectoryIndex index.php
 
 # Если файл физически не найден
-RewriteCond %{REQUEST_FILENAME} !-s
+RewriteCond %{REQUEST_FILENAME} !-f
 
 # то направим на index.php с параметрами URI
-RewriteRule ^(.+)$ /index.php?$1 [L]
+RewriteRule ^(.*)$ index.php?method=$1 [L,QSA]
