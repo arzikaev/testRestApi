@@ -6,16 +6,16 @@ require_once('methods/addHistory.php');
 require_once('auth/auth.php');
 
 //собираем данные
-$arLinks = explode('/', $_GET['links']);
+$arLinks = explode('/', $_REQUEST['links']);
 $token = $arLinks[0];
 $method = $arLinks[1];
-$id = $_GET['id'];
+$id = $_REQUEST['id'];
 $queryData = [];
-if ($_GET['name']) $queryData['name'] = $_GET['name'];
-if ($_GET['key']) $queryData['key'] = $_GET['key'];
+if ($_REQUEST['name']) $queryData['name'] = $_REQUEST['name'];
+if ($_REQUEST['key']) $queryData['key'] = $_REQUEST['key'];
 $date = (new DateTime('now'))->format('Y-m-d H:i:s');
 $new_date = date('Y-m-d H:i:s', strtotime('+7 hours', strtotime($date)));
-if ($_GET['method'] === 'update.item' && $_GET['name'] || $_GET['method'] === 'update.item' && $_GET['key']) $queryData['updated_at'] = $new_date;
+if ($_REQUEST['method'] === 'update.item' && $_REQUEST['name'] || $_REQUEST['method'] === 'update.item' && $_REQUEST['key']) $queryData['updated_at'] = $new_date;
 $table = 'Item';
 
 //авторизация

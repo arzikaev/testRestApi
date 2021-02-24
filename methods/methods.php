@@ -111,7 +111,7 @@ class methods
                 }
                 $comments .= ' ' . $key . ' ' . $isItem['item'][$key] . ' -> ' . $queryData[$key] . ';';
             }
-            print_r($comments);
+           // print_r($comments);
             history::add($db, $id, $queryData['updated_at'], $comments, $user);
 
             return [
