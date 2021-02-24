@@ -1,5 +1,5 @@
 <?php
-
+require 'addHistory.php';
 
 class methods
 {
@@ -19,9 +19,7 @@ class methods
             $key = $queryData['key'];
             $date = (new DateTime('now'))->format('Y-m-d H:i:s');
             $new_date = date('Y-m-d H:i:s', strtotime('+7 hours', strtotime($date)));
-            $createDate = $date;
-            $updateDate = $date;
-            $sql = "INSERT INTO $table (`name`, `key`, `created_at`, `updated_at`) VALUES ('$name', '$key', '$createDate', '$updateDate')";
+            $sql = "INSERT INTO $table (`name`, `key`, `created_at`, `updated_at`) VALUES ('$name', '$key', '$new_date', '$new_date')";
             $db->query($sql);
             $result = $db->insert_id;
             //print_r($result);
@@ -34,7 +32,7 @@ class methods
                 echo json_encode($res);
                 return $res;
             } else {
-
+                history::add($db, $result, $new_date, 'create item');
                 return [
                     'id' => $result,
                     'status' => 'added item',
@@ -45,6 +43,8 @@ class methods
 
     public static function getByID($db, $id, $table)
     {
+        print_r($id);
+
         if (empty($id)) {
             http_response_code(404);
             $res = [
@@ -54,6 +54,7 @@ class methods
             // echo json_encode($res);
             return $res;
         } else {
+
             $sql = "SELECT * FROM $table WHERE  Item.id=$id";
             $item = $db->query($sql)->fetch_assoc();
             if (empty($item)) {
@@ -76,9 +77,9 @@ class methods
 
     public static function update($db, $queryData, $table, $id)
     {
-        print_r($queryData);
+        // print_r($queryData);
         // echo ' id: ';
-        // print_r($id);
+        //print_r($id);
         if (empty($queryData) || empty($id)) {
             http_response_code(404);
             $res = [
@@ -88,11 +89,31 @@ class methods
             // echo json_encode($res);
             return $res;
         } else {
+            $isItem = self::getByID($db, $id, $table);
+            //print_r($isItem);
+            if (empty($isItem)) {
+                http_response_code(404);
+                $res = [
+                    'status' => false,
+                    'message' => 'item not found'
+                ];
+                return $res;
+            }
             $mappedQueryData = self::mapped_implode(', ', $queryData);
             $sql = "UPDATE " . $table . " SET " . $mappedQueryData . " WHERE Item.id=" . $id;
             echo ' sql: ';
-            print_r($sql);
+            //print_r($sql);
             $db->query($sql);
+            $comments = ' update item:';
+            foreach ($queryData as $key => $value){
+                if($key === 'updated_at'){
+                    break;
+                }
+                $comments .= ' '.$key.' ' . $isItem['item'][$key] . ' -> ' . $queryData[$key].';';
+            }
+            print_r($comments);
+            history::add($db, $id, $queryData['updated_at'], $comments);
+
             return [
                 'id' => $id,
                 'status' => 'update item',
@@ -112,8 +133,23 @@ class methods
             // echo json_encode($res);
             return $res;
         } else {
+            $date = (new DateTime('now'))->format('Y-m-d H:i:s');
+            $new_date = date('Y-m-d H:i:s', strtotime('+7 hours', strtotime($date)));
+
+            $isItem = $isItem = self::getByID($db, $id, $table);
+            if (empty($isItem)) {
+                http_response_code(404);
+                $res = [
+                    'status' => false,
+                    'message' => 'item not found'
+                ];
+                return $res;
+            }
             $sql = "DELETE FROM $table WHERE  Item.id=$id";
             $db->query($sql);
+
+            history::add($db, $id, $new_date, 'delete item');
+
             return [
                 'id' => $id,
                 'status' => 'delete',
@@ -122,12 +158,11 @@ class methods
         }
     }
 
-    private
-    static function mapped_implode($glue, $array, $symbol1 = "'", $symbol2 = "=", $symbol3 = "'")
+    private static function mapped_implode($glue, $array, $symbol1 = "'", $symbol2 = "=", $symbol3 = "'")
     {
         return implode($glue, array_map(
-                function ($k, $v) use ($symbol1, $symbol2, $symbol3) {
-                    return '`' . $k . '`' . $symbol2 . $symbol1 . $v . $symbol3;
+                function ($k, $v) {
+                    return "`" . $k . "`" . "='" . $v . "'";
                 },
                 array_keys($array),
                 array_values($array)

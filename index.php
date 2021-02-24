@@ -14,6 +14,7 @@ if (empty($method)) {
     return $res;
 }
 //print_r($_GET);
+$queryData = [];
 $id = $_GET['id'];
 if($_GET['name'])$queryData['name'] = $_GET['name'];
 if($_GET['key'])$queryData['key'] = $_GET['key'];
@@ -44,7 +45,7 @@ switch ($method) {
         $result = methods::delete($db, $id, $table);
         break;
 }
-print_r(json_encode($result));
+//print_r(json_encode($result));
 $db->close();
 
 return json_encode($result);
