@@ -11,10 +11,9 @@ class History
 
     public static function getHistoryByItemID($db, $item_id, $dateFrom = null, $dateTo = null)
     {
-        $sql = "SELECT * FROM `history` WHERE  history.item_id=$item_id";
-        while ($itemHistory = $db->query($sql)->fetch_assoc()) {
-            $result[] = $itemHistory;
-        }
+        $sql = "SELECT * FROM `history` WHERE  `item_id`=$item_id";
+        //print_r($sql);
+        $result= $db->query($sql)->fetch_ALL(MYSQLI_ASSOC);
         if (empty($result)) {
             http_response_code(404);
             $res = [

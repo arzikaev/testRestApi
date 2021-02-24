@@ -2,6 +2,7 @@
 header('Content-Type: json/application');
 
 require_once('methods/methods.php');
+require_once('methods/addHistory.php');
 
 $method = $_GET['method'];
 if (empty($method)) {
@@ -44,8 +45,11 @@ switch ($method) {
     case 'delete.item';//удаление
         $result = methods::delete($db, $id, $table);
         break;
+    case 'gethistory.item';//удаление
+        $result = history::getHistoryByItemID($db, $id);
+        break;
 }
-//print_r(json_encode($result));
+print_r(json_encode($result));
 $db->close();
 
 return json_encode($result);
