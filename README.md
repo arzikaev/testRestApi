@@ -92,7 +92,27 @@ is test work create RestAPI in PHP
             "status": "delete",
             "messege": "id: 12 is delete"
         }
+    5. gethistory.item
     
+    принимает следующие параметры:
+    
+    id - id item по которому ищется id
+    
+    Возвращает:
+    json {
+             "item": "20",
+             "history": [
+                 {
+                     "id": "1",
+                     "modify": "2021-12-12 11:11:11",
+                     "comments": "test",
+                     "users": null,
+                     "item_id": "20"
+                 }
+             ],
+             "status": "item received",
+             "messege": "received an element"
+         }
 
 
 
