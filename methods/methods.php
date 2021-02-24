@@ -3,7 +3,7 @@ require 'addHistory.php';
 
 class methods
 {
-    public static function add($db, $queryData, $table)
+    public static function add($db, $queryData, $table, $user)
     {
         if (empty($queryData['name']) || empty($queryData['key'])) {
             http_response_code(404);
@@ -32,7 +32,7 @@ class methods
                 echo json_encode($res);
                 return $res;
             } else {
-                history::add($db, $result, $new_date, 'create item');
+                history::add($db, $result, $new_date, 'create item', $user);
                 return [
                     'id' => $result,
                     'status' => 'added item',
@@ -75,7 +75,7 @@ class methods
         }
     }
 
-    public static function update($db, $queryData, $table, $id)
+    public static function update($db, $queryData, $table, $id, $user)
     {
         // print_r($queryData);
         // echo ' id: ';
@@ -105,14 +105,14 @@ class methods
             //print_r($sql);
             $db->query($sql);
             $comments = ' update item:';
-            foreach ($queryData as $key => $value){
-                if($key === 'updated_at'){
+            foreach ($queryData as $key => $value) {
+                if ($key === 'updated_at') {
                     break;
                 }
-                $comments .= ' '.$key.' ' . $isItem['item'][$key] . ' -> ' . $queryData[$key].';';
+                $comments .= ' ' . $key . ' ' . $isItem['item'][$key] . ' -> ' . $queryData[$key] . ';';
             }
             print_r($comments);
-            history::add($db, $id, $queryData['updated_at'], $comments);
+            history::add($db, $id, $queryData['updated_at'], $comments, $user);
 
             return [
                 'id' => $id,
@@ -122,7 +122,7 @@ class methods
         }
     }
 
-    public static function delete($db, $id, $table)
+    public static function delete($db, $id, $table, $user)
     {
         if (empty($id)) {
             http_response_code(404);
@@ -148,7 +148,7 @@ class methods
             $sql = "DELETE FROM $table WHERE  Item.id=$id";
             $db->query($sql);
 
-            history::add($db, $id, $new_date, 'delete item');
+            history::add($db, $id, $new_date, 'delete item', $user);
 
             return [
                 'id' => $id,
@@ -158,7 +158,7 @@ class methods
         }
     }
 
-    private static function mapped_implode($glue, $array, $symbol1 = "'", $symbol2 = "=", $symbol3 = "'")
+    private static function mapped_implode($glue, $array)
     {
         return implode($glue, array_map(
                 function ($k, $v) {

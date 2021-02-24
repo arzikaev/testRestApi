@@ -8,4 +8,4 @@ DirectoryIndex index.php
 RewriteCond %{REQUEST_FILENAME} !-f
 
 # то направим на index.php с параметрами URI
-RewriteRule ^(.*)$ index.php?method=$1 [L,QSA]
+RewriteRule ^(.*)$ index.php?links=$1 [L,QSA]
